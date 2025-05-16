@@ -86,7 +86,7 @@ namespace EcommerceStore.Data
                             Name = "Smartphone",
                             Description = "Latest model smartphone with high-resolution camera",
                             Price = 699.99m,
-                            ImageUrl = "https://via.placeholder.com/200x200.png?text=Smartphone",
+                            ImageUrl = "https://duncanlock.net/images/posts/better-figures-images-plugin-for-pelican/dummy-200x200.png",
                             Stock = 50,
                             CategoryId = electronicsCategory.Id,
                             CreatedAt = DateTime.UtcNow
@@ -96,7 +96,7 @@ namespace EcommerceStore.Data
                             Name = "Laptop",
                             Description = "Powerful laptop for work and gaming",
                             Price = 1299.99m,
-                            ImageUrl = "https://via.placeholder.com/200x200.png?text=Laptop",
+                            ImageUrl = "https://duncanlock.net/images/posts/better-figures-images-plugin-for-pelican/dummy-200x200.png",
                             Stock = 25,
                             CategoryId = electronicsCategory.Id,
                             CreatedAt = DateTime.UtcNow
@@ -106,7 +106,7 @@ namespace EcommerceStore.Data
                             Name = "T-Shirt",
                             Description = "Comfortable cotton t-shirt",
                             Price = 19.99m,
-                            ImageUrl = "https://via.placeholder.com/200x200.png?text=T-Shirt",
+                            ImageUrl = "https://duncanlock.net/images/posts/better-figures-images-plugin-for-pelican/dummy-200x200.png",
                             Stock = 100,
                             CategoryId = clothingCategory.Id,
                             CreatedAt = DateTime.UtcNow
@@ -116,7 +116,7 @@ namespace EcommerceStore.Data
                             Name = "Jeans",
                             Description = "Classic blue jeans",
                             Price = 49.99m,
-                            ImageUrl = "https://via.placeholder.com/200x200.png?text=Jeans",
+                            ImageUrl = "https://duncanlock.net/images/posts/better-figures-images-plugin-for-pelican/dummy-200x200.png",
                             Stock = 75,
                             CategoryId = clothingCategory.Id,
                             CreatedAt = DateTime.UtcNow
@@ -126,7 +126,7 @@ namespace EcommerceStore.Data
                             Name = "Programming Book",
                             Description = "Learn to code with this comprehensive guide",
                             Price = 34.99m,
-                            ImageUrl = "https://via.placeholder.com/200x200.png?text=Programming+Book",
+                            ImageUrl = "https://duncanlock.net/images/posts/better-figures-images-plugin-for-pelican/dummy-200x200.png",
                             Stock = 30,
                             CategoryId = booksCategory.Id,
                             CreatedAt = DateTime.UtcNow
