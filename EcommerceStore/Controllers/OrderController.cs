@@ -24,6 +24,12 @@ namespace EcommerceStore.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderDTO>> CreateOrder(OrderDTO orderDto)
         {
+            // Validate order request
+            if (orderDto.Items == null || !orderDto.Items.Any())
+            {
+                return BadRequest("Order must contain at least one item");
+            }
+            
             string? userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
             {

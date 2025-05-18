@@ -26,12 +26,14 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import type { SelectChangeEvent } from '@mui/material';
+
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon
 } from '@mui/icons-material';
+import { errorService } from '../../services/errorService';
+import { productManagementStyles } from './ProductManagement.styles';
 import { productService } from '../../services/productService';
 import type { Product, ProductCreateRequest } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
@@ -55,7 +57,7 @@ const ProductManagement: React.FC = () => {
     description: '',
     price: 0,
     imageUrl: '',
-    categoryId: '',
+    categoryId: 0,
     stock: 0
   });
 
@@ -79,10 +81,11 @@ const ProductManagement: React.FC = () => {
         setProducts(productsData);
         setCategories(categoriesData);
       } catch (error) {
-        console.error('Error loading products:', error);
+        errorService.logError('Product Management - fetchData', error);
+        const formattedError = errorService.formatError(error);
         setSnackbar({
           open: true,
-          message: 'Failed to load products',
+          message: `Failed to load products: ${formattedError.message}`,
           severity: 'error'
         });
       } finally {
@@ -100,7 +103,7 @@ const ProductManagement: React.FC = () => {
       description: '',
       price: 0,
       imageUrl: '',
-      categoryId: '',
+      categoryId: 0,
       stock: 0
     });
     setFormErrors({});
@@ -147,22 +150,7 @@ const ProductManagement: React.FC = () => {
     }
   };
   
-  // Handle select input changes
-  const handleSelectChange = (e: SelectChangeEvent) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    
-    // Clear error when field is changed
-    if (formErrors[name]) {
-      setFormErrors({
-        ...formErrors,
-        [name]: ''
-      });
-    }
-  };
+  
   
   // Validate form
   const validateForm = (): boolean => {
@@ -176,7 +164,7 @@ const ProductManagement: React.FC = () => {
       errors.description = 'Description is required';
     }
     
-    if (formData.price <= 0) {
+    if (!formData.price || formData.price <= 0) {
       errors.price = 'Price must be greater than 0';
     }
     
@@ -184,8 +172,14 @@ const ProductManagement: React.FC = () => {
       errors.categoryId = 'Category is required';
     }
     
-    if (formData.stock < 0) {
+    if (formData.stock === undefined || formData.stock === null) {
+      errors.stock = 'Stock is required';
+    } else if (formData.stock < 0) {
       errors.stock = 'Stock cannot be negative';
+    }
+    
+    if (!formData.imageUrl.trim()) {
+      errors.imageUrl = 'Image URL is required';
     }
     
     setFormErrors(errors);
@@ -193,17 +187,25 @@ const ProductManagement: React.FC = () => {
   };
   
   // Handle form submission
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
     
     try {
+      // Convert string values to proper types for API
+      const processedFormData = {
+        ...formData,
+        price: parseFloat(formData.price.toString()),
+        stock: parseInt(formData.stock.toString(), 10),
+        categoryId: parseInt(formData.categoryId.toString(), 10)
+      };
+      
       if (isEditing && selectedProduct) {
         // Update existing product
         const updatedProduct = await productService.updateProduct(
           selectedProduct.id,
-          formData
+          processedFormData
         );
         
         // Update products list
@@ -218,7 +220,7 @@ const ProductManagement: React.FC = () => {
         });
       } else {
         // Create new product
-        const newProduct = await productService.createProduct(formData);
+        const newProduct = await productService.createProduct(processedFormData);
         
         // Add to products list
         setProducts(prevProducts => [...prevProducts, newProduct]);
@@ -232,10 +234,11 @@ const ProductManagement: React.FC = () => {
       
       setDialogOpen(false);
     } catch (error) {
-      console.error('Error saving product:', error);
+      errorService.logError(`Product Management - ${isEditing ? 'update' : 'create'} product`, error);
+      const formattedError = errorService.formatError(error);
       setSnackbar({
         open: true,
-        message: `Failed to ${isEditing ? 'update' : 'create'} product`,
+        message: `Failed to ${isEditing ? 'update' : 'create'} product: ${formattedError.message}`,
         severity: 'error'
       });
     }
@@ -261,10 +264,11 @@ const ProductManagement: React.FC = () => {
       
       setDeleteDialogOpen(false);
     } catch (error) {
-      console.error('Error deleting product:', error);
+      errorService.logError('Product Management - deleteProduct', error);
+      const formattedError = errorService.formatError(error);
       setSnackbar({
         open: true,
-        message: 'Failed to delete product',
+        message: `Failed to delete product: ${formattedError.message}`,
         severity: 'error'
       });
     }
@@ -318,19 +322,15 @@ const ProductManagement: React.FC = () => {
                   <TableCell>{product.id}</TableCell>
                   <TableCell>
                     {product.imageUrl ? (
-                      <img 
+                      <Box 
+                        component="img" 
                         src={product.imageUrl} 
                         alt={product.name} 
-                        style={{ width: '50px', height: '50px', objectFit: 'cover' }} 
+                        sx={productManagementStyles.productImage} 
                       />
                     ) : (
                       <Box 
-                        width="50px" 
-                        height="50px" 
-                        bgcolor="grey.300" 
-                        display="flex" 
-                        alignItems="center" 
-                        justifyContent="center"
+                        sx={productManagementStyles.noImageContainer}
                       >
                         No image
                       </Box>
@@ -340,6 +340,11 @@ const ProductManagement: React.FC = () => {
                   <TableCell>
                     {product.category ? (
                       <Chip label={product.category.name} size="small" />
+                    ) : product.categoryId ? (
+                      <Chip 
+                        label={categories.find(c => c.id === product.categoryId)?.name || 'Unknown'} 
+                        size="small" 
+                      />
                     ) : (
                       '-'
                     )}
@@ -455,7 +460,21 @@ const ProductManagement: React.FC = () => {
                 labelId="category-label"
                 name="categoryId"
                 value={formData.categoryId}
-                onChange={handleSelectChange}
+                onChange={(e) => {
+                  const { name, value } = e.target;
+                  setFormData({
+                    ...formData,
+                    [name]: value
+                  });
+                  
+                  // Clear error when field is changed
+                  if (formErrors[name]) {
+                    setFormErrors({
+                      ...formErrors,
+                      [name]: ''
+                    });
+                  }
+                }}
                 label="Category"
               >
                 {categories.map((category) => (

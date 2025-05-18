@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { errorService } from '../../services/errorService';
 import {
   Box,
   Typography,
@@ -61,10 +62,11 @@ const CategoryManagement: React.FC = () => {
         const categoriesData = await categoryService.getCategories();
         setCategories(categoriesData);
       } catch (error) {
-        console.error('Error loading categories:', error);
+        errorService.logError('Category Management - fetchCategories', error);
+        const formattedError = errorService.formatError(error);
         setSnackbar({
           open: true,
-          message: 'Failed to load categories',
+          message: `Failed to load categories: ${formattedError.message}`,
           severity: 'error'
         });
       } finally {
@@ -173,10 +175,11 @@ const CategoryManagement: React.FC = () => {
       
       setDialogOpen(false);
     } catch (error) {
-      console.error('Error saving category:', error);
+      errorService.logError(`Category Management - ${isEditing ? 'update' : 'create'} category`, error);
+      const formattedError = errorService.formatError(error);
       setSnackbar({
         open: true,
-        message: `Failed to ${isEditing ? 'update' : 'create'} category`,
+        message: `Failed to ${isEditing ? 'update' : 'create'} category: ${formattedError.message}`,
         severity: 'error'
       });
     }
@@ -202,10 +205,11 @@ const CategoryManagement: React.FC = () => {
       
       setDeleteDialogOpen(false);
     } catch (error) {
-      console.error('Error deleting category:', error);
+      errorService.logError('Category Management - deleteCategory', error);
+      const formattedError = errorService.formatError(error);
       setSnackbar({
         open: true,
-        message: 'Failed to delete category',
+        message: `Failed to delete category: ${formattedError.message}`,
         severity: 'error'
       });
     }

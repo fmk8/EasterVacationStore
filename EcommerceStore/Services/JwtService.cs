@@ -33,10 +33,12 @@ namespace EcommerceStore.Services
             
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             
+            var tokenExpiration = _configuration.GetValue<int>("Jwt:ExpirationDays", 1);
+            
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(1), // Token valid for 1 day
+                Expires = DateTime.UtcNow.AddDays(tokenExpiration),
                 SigningCredentials = creds
             };
             

@@ -4,7 +4,7 @@ import type { Product } from '../services/productService';
 
 // Define the cart item type
 export interface CartItem {
-  productId: string;
+  productId: number;
   name: string;
   price: number;
   imageUrl: string;
@@ -15,8 +15,8 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   addItem: (product: Product, quantity: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (productId: number) => void;
+  updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -68,12 +68,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
   
   // Remove an item from the cart
-  const removeItem = (productId: string) => {
+  const removeItem = (productId: number) => {
     setItems(prevItems => prevItems.filter(item => item.productId !== productId));
   };
   
   // Update the quantity of an item
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: number, quantity: number) => {
     if (quantity <= 0) {
       removeItem(productId);
       return;

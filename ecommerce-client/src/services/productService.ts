@@ -1,17 +1,18 @@
 import api from './api';
 
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
   imageUrl: string;
-  categoryId: string;
+  categoryId: number;
   stock: number;
   category?: {
-    id: string;
+    id: number;
     name: string;
   };
+  createdAt?: string;
 }
 
 export interface ProductCreateRequest {
@@ -19,7 +20,7 @@ export interface ProductCreateRequest {
   description: string;
   price: number;
   imageUrl: string;
-  categoryId: string;
+  categoryId: number;
   stock: number;
 }
 
@@ -29,12 +30,12 @@ export const productService = {
     return response.data;
   },
 
-  getProductById: async (id: string): Promise<Product> => {
+  getProductById: async (id: number): Promise<Product> => {
     const response = await api.get<Product>(`/product/${id}`);
     return response.data;
   },
 
-  getProductsByCategory: async (categoryId: string): Promise<Product[]> => {
+  getProductsByCategory: async (categoryId: number): Promise<Product[]> => {
     const response = await api.get<Product[]>(`/product/category/${categoryId}`);
     return response.data;
   },
@@ -44,12 +45,12 @@ export const productService = {
     return response.data;
   },
 
-  updateProduct: async (id: string, product: Partial<ProductCreateRequest>): Promise<Product> => {
+  updateProduct: async (id: number, product: Partial<ProductCreateRequest>): Promise<Product> => {
     const response = await api.put<Product>(`/product/${id}`, product);
     return response.data;
   },
 
-  deleteProduct: async (id: string): Promise<void> => {
+  deleteProduct: async (id: number): Promise<void> => {
     await api.delete(`/product/${id}`);
   }
 };

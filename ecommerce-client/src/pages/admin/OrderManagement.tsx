@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { errorService } from '../../services/errorService';
 import {
   Box,
   Typography,
@@ -63,10 +64,11 @@ const OrderManagement: React.FC = () => {
         const userOrders = await orderService.getUserOrders();
         setOrders(userOrders);
       } catch (error) {
-        console.error('Error loading orders:', error);
+        errorService.logError('Order Management - fetchOrders', error);
+        const formattedError = errorService.formatError(error);
         setSnackbar({
           open: true,
-          message: 'Failed to load orders',
+          message: `Failed to load orders: ${formattedError.message}`,
           severity: 'error'
         });
       } finally {
@@ -116,10 +118,11 @@ const OrderManagement: React.FC = () => {
       
       setStatusDialogOpen(false);
     } catch (error) {
-      console.error('Error updating order status:', error);
+      errorService.logError('Order Management - updateOrderStatus', error);
+      const formattedError = errorService.formatError(error);
       setSnackbar({
         open: true,
-        message: 'Failed to update order status',
+        message: `Failed to update order status: ${formattedError.message}`,
         severity: 'error'
       });
     }

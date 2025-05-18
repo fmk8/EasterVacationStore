@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { errorService } from '../../services/errorService';
 import { 
   Typography, 
   Paper, 
@@ -40,7 +41,8 @@ const AdminDashboard: React.FC = () => {
         setProductCount(products.length);
         setCategoryCount(categories.length);
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        errorService.logError('Admin Dashboard - fetchData', error);
+        setLoading(false);
       } finally {
         setLoading(false);
       }

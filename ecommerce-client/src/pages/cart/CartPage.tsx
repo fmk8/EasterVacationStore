@@ -29,11 +29,11 @@ const CartPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const handleQuantityChange = (id: string, quantity: number) => {
+  const handleQuantityChange = (id: number, quantity: number) => {
     updateQuantity(id, quantity);
   };
 
-  const handleRemoveItem = (id: string) => {
+  const handleRemoveItem = (id: number) => {
     removeItem(id);
   };
 

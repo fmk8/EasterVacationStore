@@ -26,6 +26,12 @@ namespace EcommerceStore.Services
                 throw new Exception("Email already in use");
             }
             
+            // Validate password complexity
+            if (registerDto.Password.Length < 8)
+            {
+                throw new Exception("Password must be at least 8 characters");
+            }
+            
             // Create new user
             var user = new User
             {

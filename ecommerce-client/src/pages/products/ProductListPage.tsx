@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
   Container, 
   Typography, 
   Box, 
-  Card, 
-  CardMedia, 
-  CardContent, 
-  CardActions, 
-  Button, 
   TextField,
   MenuItem,
   Select,
@@ -19,7 +14,9 @@ import {
   Stack,
   Alert,
   InputAdornment,
-  Grid
+  Grid,
+  Button,
+  IconButton
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { Link } from 'react-router-dom';
@@ -27,6 +24,7 @@ import productService from '../../services/productService';
 import categoryService from '../../services/categoryService';
 import type { Product } from '../../services/productService';
 import type { Category } from '../../services/categoryService';
+import ProductCard from '../../components/products/ProductCard';
 
 const ProductListPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,6 +35,7 @@ const ProductListPage: React.FC = () => {
   
   // Filtering and pagination state
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchInputValue, setSearchInputValue] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -76,7 +75,8 @@ const ProductListPage: React.FC = () => {
         let productsData: Product[] = [];
         
         if (selectedCategory) {
-          productsData = await productService.getProductsByCategory(selectedCategory);
+          // Convert string ID to number
+          productsData = await productService.getProductsByCategory(parseInt(selectedCategory, 10));
         } else {
           productsData = await productService.getProducts();
         }
@@ -126,14 +126,27 @@ const ProductListPage: React.FC = () => {
     updateFilters(newCategory, searchTerm, 1);
   };
   
+  // Handle input change without triggering search
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    setSearchInputValue(event.target.value);
   };
   
+  // Handle search submission
   const handleSearchSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setSearchTerm(searchInputValue);
     setPage(1); // Reset to first page when changing filters
-    updateFilters(selectedCategory, searchTerm, 1);
+    updateFilters(selectedCategory, searchInputValue, 1);
+  };
+  
+  // Clear search when clicking the clear button
+  const handleClearSearch = () => {
+    setSearchInputValue('');
+    if (searchTerm) {
+      setSearchTerm('');
+      setPage(1);
+      updateFilters(selectedCategory, '', 1);
+    }
   };
   
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -184,12 +197,32 @@ const ProductListPage: React.FC = () => {
                   fullWidth
                   variant="outlined"
                   placeholder="Search products..."
-                  value={searchTerm}
+                  value={searchInputValue}
                   onChange={handleSearchChange}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <Button type="submit">
+                        {searchInputValue && (
+                          <IconButton
+                            onClick={handleClearSearch}
+                            size="small"
+                            sx={{ mr: 0.5 }}
+                          >
+                            <Box sx={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: '50%',
+                              bgcolor: 'action.disabled',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              fontSize: '0.9rem',
+                              fontWeight: 'bold'
+                            }}>×</Box>
+                          </IconButton>
+                        )}
+                        <Button type="submit" variant="contained" size="small" sx={{ minWidth: 'unset', px: 1 }}>
                           <SearchIcon />
                         </Button>
                       </InputAdornment>
@@ -218,35 +251,7 @@ const ProductListPage: React.FC = () => {
             <Box sx={{ display: 'flex', flexWrap: 'wrap', margin: -1.5 }}>
               {products.map(product => (
                 <Box key={product.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.3%' }, padding: 1.5 }}>
-                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={product.imageUrl || 'https://via.placeholder.com/300x200'}
-                      alt={product.name}
-                    />
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography gutterBottom variant="h6" component="div">
-                        {product.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {product.description.substring(0, 100)}
-                        {product.description.length > 100 ? '...' : ''}
-                      </Typography>
-                      <Typography variant="h6" color="primary">
-                        ${product.price.toFixed(2)}
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button 
-                        size="small" 
-                        component={Link}
-                        to={`/products/${product.id}`}
-                      >
-                        View Details
-                      </Button>
-                    </CardActions>
-                  </Card>
+                  <ProductCard product={product} />
                 </Box>
               ))}
             </Box>

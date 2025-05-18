@@ -96,6 +96,42 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+// Add enhanced request logging middleware with error handling
+app.Use(async (context, next) => {
+    var path = context.Request.Path;
+    var method = context.Request.Method;
+    var requestId = Guid.NewGuid().ToString()[..8]; // Short ID for log correlation
+    
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+    try {
+        Console.WriteLine($"[{requestId}] Starting {method} {path}");
+        await next();
+    }
+    catch (Exception ex) {
+        // Log the exception
+        Console.WriteLine($"[{requestId}] Error processing {method} {path}: {ex.Message}");
+        
+        // Don't re-throw as this will be handled by the Error handler middleware
+        if (!context.Response.HasStarted) {
+            context.Response.StatusCode = 500;
+        }
+    }
+    finally {
+        sw.Stop();
+        var statusCode = context.Response.StatusCode;
+        
+        // Use different colors for different status codes
+        var statusMessage = statusCode switch {
+            >= 500 => $"\u001b[31m{statusCode}\u001b[0m", // Red for 5xx
+            >= 400 => $"\u001b[33m{statusCode}\u001b[0m", // Yellow for 4xx
+            >= 300 => $"\u001b[36m{statusCode}\u001b[0m", // Cyan for 3xx
+            _ => $"\u001b[32m{statusCode}\u001b[0m"      // Green for 2xx
+        };
+        
+        Console.WriteLine($"[{requestId}] Completed {method} {path} {statusMessage} in {sw.ElapsedMilliseconds}ms");
+    }
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -109,8 +145,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -1,7 +1,7 @@
 import api from './api';
 
 export interface Category {
-  id: string;
+  id: number;
   name: string;
   description: string;
 }
@@ -17,7 +17,7 @@ export const categoryService = {
     return response.data;
   },
 
-  getCategoryById: async (id: string): Promise<Category> => {
+  getCategoryById: async (id: number): Promise<Category> => {
     const response = await api.get<Category>(`/category/${id}`);
     return response.data;
   },
@@ -27,12 +27,12 @@ export const categoryService = {
     return response.data;
   },
 
-  updateCategory: async (id: string, category: Partial<CategoryCreateRequest>): Promise<Category> => {
+  updateCategory: async (id: number, category: Partial<CategoryCreateRequest>): Promise<Category> => {
     const response = await api.put<Category>(`/category/${id}`, category);
     return response.data;
   },
 
-  deleteCategory: async (id: string): Promise<void> => {
+  deleteCategory: async (id: number): Promise<void> => {
     await api.delete(`/category/${id}`);
   }
 };

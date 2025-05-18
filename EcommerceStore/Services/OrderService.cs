@@ -21,7 +21,9 @@ namespace EcommerceStore.Services
         public async Task<OrderDTO?> CreateOrderAsync(int userId, OrderDTO orderDto)
         {
             // Begin transaction
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync(
+                System.Data.IsolationLevel.ReadCommitted,
+                cancellationToken: default);
             
             try
             {
@@ -31,7 +33,7 @@ namespace EcommerceStore.Services
                     UserId = userId,
                     OrderDate = DateTime.UtcNow,
                     Status = "Pending",
-                    Total = 0 // Will calculate below
+                    Total = 0 
                 };
                 
                 _context.Orders.Add(order);

@@ -2,10 +2,10 @@ import api from './api';
 import type { Product } from './productService';
 
 export interface OrderItem {
-  productId: string;
+  productId: number;
   quantity: number;
   product?: {
-    id: string;
+    id: number;
     name: string;
     price: number;
     imageUrl: string;
@@ -13,7 +13,7 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: string;
+  id: number;
   orderDate: string;
   status: string;
   total: number;
@@ -22,7 +22,7 @@ export interface Order {
 
 export interface OrderCreateRequest {
   items: {
-    productId: string;
+    productId: number;
     quantity: number;
   }[];
 }
@@ -33,7 +33,7 @@ export const orderService = {
     return response.data;
   },
 
-  getOrderById: async (id: string): Promise<Order> => {
+  getOrderById: async (id: number): Promise<Order> => {
     const response = await api.get<Order>(`/order/${id}`);
     return response.data;
   },
@@ -43,10 +43,10 @@ export const orderService = {
     return response.data;
   },
 
-  updateOrderStatus: async (id: string, status: string): Promise<Order> => {
-    const response = await api.put<Order>(`/orders/${id}/status`, { status });
+  updateOrderStatus: async (id: number, status: string): Promise<Order> => {
+    const response = await api.put<Order>(`/order/${id}/status`, { status });
     return response.data;
   }
 };
 
-export default orderService; 
+export default orderService;

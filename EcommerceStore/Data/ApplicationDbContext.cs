@@ -20,7 +20,7 @@ namespace EcommerceStore.Data
         {
             base.OnModelCreating(modelBuilder);
             
-            // Configure relationships
+            // Relasjoner
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)
